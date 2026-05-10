@@ -1,8 +1,8 @@
 import { Storage } from './storage';
 
 /**
- * Сховище сесій для Google Apps Script на базі CacheService.
- * Швидке, але дані живуть максимум 6 годин (21600 секунд).
+ * Session storage for Google Apps Script based on CacheService.
+ * Fast, but data lives for a maximum of 6 hours (21600 seconds).
  */
 export class CacheStorage<T> implements Storage<T> {
   private cache: GoogleAppsScript.Cache.Cache;
@@ -10,11 +10,11 @@ export class CacheStorage<T> implements Storage<T> {
   private ttl: number;
 
   /**
-   * Швидке сховище сесій для Google Apps Script на базі CacheService.
-   * Дані живуть максимум 6 годин (21600 секунд).
-   * @param cache Яку службу кешу використовувати (за замовчуванням ScriptCache)
-   * @param ttl Час життя в секундах (за замовчуванням 21600 - 6 годин)
-   * @param prefix Префікс для ключів
+   * Fast session storage for Google Apps Script based on CacheService.
+   * Data lives for a maximum of 6 hours (21600 seconds).
+   * @param cache Which cache service to use (ScriptCache by default)
+   * @param ttl Time to live in seconds (21600 - 6 hours by default)
+   * @param prefix Prefix for keys
    */
   constructor(
     cache: GoogleAppsScript.Cache.Cache = CacheService.getScriptCache(),
@@ -27,9 +27,8 @@ export class CacheStorage<T> implements Storage<T> {
   }
 
   /**
-   * Отримує сесію.
-   * @param key Ключ сесії
-   * @returns `T | undefined`
+   * Gets the session.
+   * @param key Session key
    */
   public get(key: string): T | undefined {
     const raw = this.cache.get(this.prefix + key);
@@ -43,9 +42,9 @@ export class CacheStorage<T> implements Storage<T> {
   }
 
   /**
-   * Зберігає сесію.
-   * @param key Ключ сесії
-   * @param value Значення сесії
+   * Saves the session.
+   * @param key Session key
+   * @param value Session value
    */
   public set(key: string, value: T): void {
     const raw = JSON.stringify(value);
@@ -53,8 +52,8 @@ export class CacheStorage<T> implements Storage<T> {
   }
 
   /**
-   * Видаляє сесію.
-   * @param key Ключ сесії
+   * Deletes the session.
+   * @param key Session key
    */
   public delete(key: string): void {
     this.cache.remove(this.prefix + key);

@@ -1,17 +1,17 @@
 import { build } from 'esbuild';
 import { existsSync, copyFileSync } from 'fs';
 
-// Ніяких імпортів бота, ніякого async/await. Тільки сирий, синхронний GAS.
+// No bot imports, no async/await. Only raw, synchronous GAS entry.
 const autoEntryCode = `
-import { bot } from './src/index';
+import { TelegramBot, GasApiClient } from './src/index';
 
 globalThis.doPost = async (e) => {
   try {
     if (!e || !e.postData || !e.postData.contents) return;
     const update = JSON.parse(e.postData.contents);
-  
-    // Вся магія ініціалізації контексту тепер всередині бота!
-    await bot.handleUpdate(update);
+
+    const Bot = new TelegramBot(new GasApiClient('token'));
+    await Bot.handleUpdate(update);
   } catch (err) {
     console.error("Critical Webhook Error: " + err);
   }
@@ -34,5 +34,5 @@ build({
   if (existsSync('src/appsscript.json')) {
     copyFileSync('src/appsscript.json', 'dist/appsscript.json');
   }
-  console.log('✅ Бандл створено!');
+  console.log('✅ Bundle created!');
 }).catch(() => process.exit(1));

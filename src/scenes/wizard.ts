@@ -2,9 +2,10 @@
 import { Composer, Middleware } from '../core/composer';
 import { Context } from '../core/context';
 import { SceneManager } from './scene-manager';
+import { SessionData } from '../session';
 
 export interface SceneContext extends Context {
-  session: any;
+  session: SessionData;
   scene: SceneManager;
 }
 
@@ -13,8 +14,8 @@ export class WizardScene<C extends SceneContext> extends Composer<C> {
   private steps: Middleware<C>[];
 
   /**
-   * @param name Унікальна назва сцени
-   * @param steps Функції-обробники для кожного кроку (Step 0, Step 1, ...)
+   * @param name Unique name of the scene
+   * @param steps Handler functions for each step (Step 0, Step 1, ...)
    */
   constructor(name: string, ...steps: Middleware<C>[]) {
     super();
@@ -37,6 +38,7 @@ export class WizardScene<C extends SceneContext> extends Composer<C> {
       const stepHandler = this.steps[currentStepIndex];
 
       if (!stepHandler) {
+        ctx.scene.leave();
         return next();
       }
 

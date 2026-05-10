@@ -2,29 +2,47 @@
 import { TelegramBotApi } from '../types/telegram';
 
 /**
- * Абстрактне ядро, яке описує транспортний рівень.
+ * Shape of a Telegram API error response (non-2xx HTTP status).
+ */
+export interface TelegramErrorResponse {
+  ok: false;
+  description: string;
+  error_code: number;
+}
+
+/**
+ * Shape of a successful Telegram API response envelope.
+ */
+export interface TelegramApiResponse<T = unknown> {
+  ok: boolean;
+  description?: string;
+  result: T;
+}
+
+/**
+ * Abstract core describing the transport layer.
  */
 export abstract class BaseTelegramClient {
   protected readonly baseUrl: string;
 
   /**
-   * Створює новий екземпляр клієнта.
-   * @param token - токен вашого бота
+   * Creates a new client instance.
+   * @param token Your bot's token
    */
   constructor(token: string) {
     this.baseUrl = `https://api.telegram.org/bot${token}`;
   }
 
   /**
-   * Метод відправки, який кожна платформа реалізує сама.
-   * @param method - назва методу
-   * @param payload - об'єкт параметрів
+   * Request method implemented by each platform.
+   * @param method Method name
+   * @param payload Parameters object
    * @returns `Promise<T>`
    */
   public abstract callApi<T>(method: string, payload?: Record<string, unknown>): Promise<T>;
 
   /**
-   * Proxy, що "вдає" повну імплементацію TelegramBotApi.
+   * Proxy that "pretends" to be a full TelegramBotApi implementation.
    * @returns `TelegramBotApi`
    */
   public get raw(): TelegramBotApi {

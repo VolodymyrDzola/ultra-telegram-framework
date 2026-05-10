@@ -1,16 +1,16 @@
 // src/scenes/scene-manager.ts
 
 export interface SceneSessionData {
-  name?: string; // Назва активної сцени
-  step?: number; // Поточний крок (індекс)
-  state?: Record<string, any>; // Тимчасові дані, які існують лише всередині сцени
+  name?: string; // Name of the active scene
+  step?: number; // Current step (index)
+  state?: Record<string, any>; // Temporary data that exists only inside the scene
 }
 
 export class SceneManager {
-  constructor(private ctx: any) { }
+  constructor(private ctx: { session?: Record<string, any> }) { }
 
   /**
-   * Захищений доступ до системного об'єкта сесії сцени.
+   * Protected access to the system scene session object.
    */
   public get session(): SceneSessionData {
     this.ctx.session ??= {};
@@ -19,8 +19,8 @@ export class SceneManager {
   }
 
   /**
-   * Сховище для тимчасових даних конкретної сцени.
-   * Очищається при виході зі сцени.
+   * Storage for temporary data of a specific scene.
+   * Cleared when leaving the scene.
    */
   public get state(): Record<string, any> {
     this.session.state ??= {};
@@ -32,9 +32,9 @@ export class SceneManager {
   }
 
   /**
-   * Увійти в нову сцену
-   * @param name Назва сцени
-   * @param initialState Початковий стан (опціонально)
+   * Enter a new scene
+   * @param name Scene name
+   * @param initialState Initial state (optional)
    */
   public enter(name: string, initialState: Record<string, any> = {}): void {
     this.ctx.session ??= {};
@@ -46,7 +46,7 @@ export class SceneManager {
   }
 
   /**
-   * Вийти з поточної сцени (скидає FSM)
+   * Leave the current scene (resets FSM)
    */
   public leave(): void {
     if (this.ctx.session && this.ctx.session.__scene) {
@@ -55,16 +55,14 @@ export class SceneManager {
   }
 
   /**
-   * Перейти на наступний крок у Wizard-сцені
+   * Go to the next step in the Wizard scene
    */
   public next(): void {
-    if (this.session.step !== undefined) {
-      this.session.step++;
-    }
+    this.session.step = (this.session.step ?? 0) + 1;
   }
 
   /**
-   * Перейти на конкретний крок за його індексом
+   * Go to a specific step by its index
    */
   public selectStep(index: number): void {
     this.session.step = index;

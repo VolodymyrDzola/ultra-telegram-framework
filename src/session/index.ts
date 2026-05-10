@@ -4,21 +4,29 @@ import { Middleware } from '../core/composer';
 import { Storage } from './storage';
 import { MemoryStorage } from './memory-storage';
 
-export interface SessionOptions<S, C extends Context> {
-  /** Сховище даних (за замовчуванням MemoryStorage) */
+export interface SessionData extends Record<string, any> { }
+
+declare module '../core/context' {
+  interface Context {
+    session?: SessionData;
+  }
+}
+
+export interface SessionOptions<S extends SessionData, C extends Context> {
+  /** Data storage (MemoryStorage by default) */
   storage?: Storage<S>;
 
-  /** Функція генерації ключа (за замовчуванням "chatId:userId") */
+  /** Key generation function ("chatId:userId" by default) */
   getSessionKey?: (ctx: C) => string | undefined;
 
-  /** Функція ініціалізації порожньої сесії (якщо даних ще немає) */
+  /** Empty session initialization function (if data doesn't exist yet) */
   initial?: () => S;
 }
 
 /**
- * Мідлвар для додавання сесій у контекст.
+ * Middleware for adding sessions to the context.
  */
-export function session<S, C extends Context & { session?: S }>(
+export function session<S extends SessionData, C extends Context>(
   options?: SessionOptions<S, C>
 ): Middleware<C> {
   const storage = options?.storage || new MemoryStorage<S>();
@@ -27,7 +35,7 @@ export function session<S, C extends Context & { session?: S }>(
     const chatId = ctx.chatId;
     const fromId = ctx.from?.id;
     if (chatId == null || fromId == null) {
-      return undefined; // Якщо це подія без чату/користувача, сесія не працюватиме
+      return undefined; // If this is an event without chat/user, the session will not work
     }
     return `${chatId}:${fromId}`;
   });
@@ -35,19 +43,19 @@ export function session<S, C extends Context & { session?: S }>(
   return async (ctx, next) => {
     const key = getSessionKey(ctx);
 
-    // Якщо ключ не згенеровано (наприклад, системний апдейт), просто йдемо далі
+    // If the key is not generated (e.g., system update), just proceed further
     if (!key) {
       return next();
     }
 
-    // 1. Отримуємо дані зі сховища
+    // 1. Get data from storage
     let sessionData: S | undefined = await Promise.resolve(storage.get(key));
-    // 2. Якщо даних немає, викликаємо initial() або створюємо порожній об'єкт
+    // 2. If data is missing, call initial() or create an empty object
     if (sessionData == null) {
       sessionData = options?.initial ? options.initial() : ({} as S);
     }
 
-    // 3. Кладемо сесію в контекст
+    // 3. Put the session into the context
     ctx.session = sessionData;
 
     await next();
@@ -55,7 +63,7 @@ export function session<S, C extends Context & { session?: S }>(
     if (ctx.session == null) {
       await Promise.resolve(storage.delete(key));
     } else {
-      await Promise.resolve(storage.set(key, ctx.session));
+      await Promise.resolve(storage.set(key, ctx.session as S));
     }
   };
 }

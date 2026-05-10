@@ -1,19 +1,19 @@
 // src/session/memory-storage.ts
 import { Storage } from './storage';
 
-/**w
- * Сховище сесій у пам'яті (Map).
- * Найшвидше, але дані втрачаються при перезапуску бота.
+/**
+ * In-memory session storage (Map).
+ * Fastest option, but data is lost when the bot restarts.
  *
- * ✅ Плюси: дуже швидке, не потребує налаштувань
- * ❌ Мінуси: дані не зберігаються між запитами
+ * ✅ Pros: very fast, no configuration required
+ * ❌ Cons: data is not persistent between restarts
  */
 export class MemoryStorage<T> implements Storage<T> {
   private store = new Map<string, T>();
 
   /**
-   * Отримує сесію.
-   * @param key Ключ сесії
+   * Retrieves a session.
+   * @param key Session key
    * @returns `T | undefined`
    */
   public get(key: string): T | undefined {
@@ -21,17 +21,17 @@ export class MemoryStorage<T> implements Storage<T> {
   }
 
   /**
-   * Зберігає сесію.
-   * @param key Ключ сесії
-   * @param value Значення сесії
+   * Saves a session.
+   * @param key Session key
+   * @param value Session value
    */
   public set(key: string, value: T): void {
     this.store.set(key, value);
   }
 
   /**
-   * Видаляє сесію.
-   * @param key Ключ сесії
+   * Deletes a session.
+   * @param key Session key
    */
   public delete(key: string): void {
     this.store.delete(key);

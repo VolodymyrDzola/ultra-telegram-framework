@@ -1,7 +1,7 @@
 // src/adapters/web.ts
-import { BaseTelegramClient } from '../core/base-api';
+import { BaseTelegramClient, TelegramErrorResponse, TelegramApiResponse } from '../core/base-api';
 
-export class FetchApiClient extends BaseTelegramClient {
+export class WebApiClient extends BaseTelegramClient {
   public async callApi<T>(method: string, payload: Record<string, unknown> = {}): Promise<T> {
     const url = `${this.baseUrl}/${method}`;
 
@@ -87,14 +87,14 @@ export class FetchApiClient extends BaseTelegramClient {
     if (!response.ok) {
       const textData = await response.text();
       try {
-        const jsonData = JSON.parse(textData);
+        const jsonData = JSON.parse(textData) as TelegramErrorResponse;
         throw new Error(`Telegram API Error [${method}] ${response.status}: ${jsonData.description}`);
       } catch {
         throw new Error(`Telegram HTTP Error ${response.status}: ${textData}`);
       }
     }
 
-    const data = (await response.json()) as any;
+    const data = (await response.json()) as TelegramApiResponse<T>;
 
     if (!data.ok) {
       throw new Error(`Telegram Logic Error [${method}]: ${data.description}`);

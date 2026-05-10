@@ -3,20 +3,21 @@ import { PropertiesStorage } from './gas-storage';
 import { CacheStorage } from './gas-cache-storage';
 
 /**
- * Гібридне сховище для Google Apps Script (CacheService + PropertiesService).
- * Поєднує швидкість кешу та надійність властивостей.
+ * Hybrid storage for Google Apps Script (CacheService + PropertiesService).
+ * Combines cache speed and properties reliability.
  */
 export class GasHybridStorage<T> implements Storage<T> {
   private cache: CacheStorage<T>;
   private properties: PropertiesStorage<T>;
 
   /**
-   * Гібридне сховище для Google Apps Script (CacheService + PropertiesService).
-   * Поєднує швидкість кешу та надійність властивостей.
-   * @param cache Яку службу кешу використовувати (за замовчуванням ScriptCache)
-   * @param properties Яку службу властивостей використовувати (за замовчуванням ScriptProperties)
-   * @param ttl Час життя в секундах (за замовчуванням 21600 - 6 годин)
-   * @param prefix Префікс для ключів
+   * Hybrid storage for Google Apps Script (CacheService + PropertiesService).
+   * Combines cache speed and properties reliability.
+   * @param options Configuration options
+   * @param options.cache Which cache service to use (ScriptCache by default)
+   * @param options.properties Which properties service to use (ScriptProperties by default)
+   * @param options.ttl Time to live in seconds (21600 - 6 hours by default)
+   * @param options.prefix Prefix for keys
    */
   constructor(options?: {
     cache?: GoogleAppsScript.Cache.Cache;
@@ -36,17 +37,17 @@ export class GasHybridStorage<T> implements Storage<T> {
   }
 
   public async get(key: string): Promise<T | undefined> {
-    // 1. Спробуємо взяти з швидкого кешу
+    // 1. Try to get from the fast cache
     let data = await Promise.resolve(this.cache.get(key));
 
     if (data !== undefined) {
       return data;
     }
 
-    // 2. Якщо в кеші немає — ліземо в повільні властивості
+    // 2. If not in cache, go to slow properties
     data = await Promise.resolve(this.properties.get(key));
 
-    // 3. Якщо знайшли в властивостях — оновлюємо кеш для наступного разу
+    // 3. If found in properties, update cache for next time
     if (data !== undefined) {
       this.cache.set(key, data);
     }
@@ -55,7 +56,7 @@ export class GasHybridStorage<T> implements Storage<T> {
   }
 
   public async set(key: string, value: T): Promise<void> {
-    // Пишемо в обидва сховища
+    // Write to both storages
     await Promise.all([
       Promise.resolve(this.cache.set(key, value)),
       Promise.resolve(this.properties.set(key, value))
@@ -63,7 +64,7 @@ export class GasHybridStorage<T> implements Storage<T> {
   }
 
   public async delete(key: string): Promise<void> {
-    // Видаляємо з обох місць
+    // Delete from both places
     await Promise.all([
       Promise.resolve(this.cache.delete(key)),
       Promise.resolve(this.properties.delete(key))

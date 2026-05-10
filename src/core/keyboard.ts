@@ -17,31 +17,31 @@ import {
 } from '../types/telegram';
 
 /**
- * Базовий інтерфейс для будь-якої кнопки (щоб TypeScript знав про спільні поля)
+ * Base interface for any button (so TypeScript knows about common fields)
  */
-interface CommonButton {
+export interface CommonButton {
   text: string;
   icon_custom_emoji_id?: string;
   style?: string;
 }
 
 /**
- * Абстрактний клас, який містить спільну логіку для всіх типів клавіатур.
- * T - це тип кнопки (InlineKeyboardButton або KeyboardButton).
+ * Abstract class containing common logic for all keyboard types.
+ * T is the button type (InlineKeyboardButton or KeyboardButton).
  */
 export abstract class BaseKeyboard<T extends CommonButton> {
-  // Захищена властивість (доступна в дочірніх класах)
+  // Protected property (available in child classes)
   protected matrix: T[][] = [[]];
 
-  /** Починає новий рядок */
+  /** Starts a new row */
   public row(): this {
     this.matrix.push([]);
     return this;
   }
 
   /**
-   * Додає кастомний емодзі до ОСТАННЬОЇ доданої кнопки.
-   * @param emojiId Унікальний ID емодзі (доступно для Premium ботів)
+   * Adds a custom emoji to the LAST added button.
+   * @param emojiId Unique emoji ID (available for Premium bots)
    */
   public customEmoji(emojiId: string): this {
     const lastButton = this.getLastButton();
@@ -50,8 +50,8 @@ export abstract class BaseKeyboard<T extends CommonButton> {
   }
 
   /**
-   * Задає стиль для ОСТАННЬОЇ доданої кнопки.
-   * @param style 'danger' (червоний) | 'success' (зелений) | 'primary' (синій)
+   * Sets the style for the LAST added button.
+   * @param style 'danger' (red) | 'success' (green) | 'primary' (blue)
    */
   public style(style: 'danger' | 'success' | 'primary'): this {
     const lastButton = this.getLastButton();
@@ -60,7 +60,7 @@ export abstract class BaseKeyboard<T extends CommonButton> {
   }
 
   // =====================================
-  // ВНУТРІШНІ ХЕЛПЕРИ
+  // INTERNAL HELPERS
   // =====================================
 
   protected addButton(button: T): this {
@@ -79,7 +79,7 @@ export abstract class BaseKeyboard<T extends CommonButton> {
 }
 
 // ============================================================================
-// INLINE KEYBOARD (Кнопки під повідомленням)
+// INLINE KEYBOARD (Buttons under the message)
 // ============================================================================
 export class InlineKeyboard extends BaseKeyboard<InlineKeyboardButton> {
 
@@ -124,35 +124,35 @@ export class InlineKeyboard extends BaseKeyboard<InlineKeyboardButton> {
   }
 
   /**
-   * Спеціальна кнопка для переходу між сторінками InlineMenu
-   * @param text Текст кнопки
-   * @param menuId ID меню
-   * @param pageId ID сторінки, на яку треба перейти
+   * Special button for switching between InlineMenu pages
+   * @param text Button text
+   * @param menuId Menu ID
+   * @param pageId ID of the page to navigate to
    */
   public menu(text: string, menuId: string, pageId: string): this {
     return this.addButton({ text, callback_data: `menu:${menuId}:${pageId}` });
   }
 
 
-  /** Збирає фінальний об'єкт (використовуємо this.matrix з базового класу) */
+  /** Builds the final object (uses this.matrix from the base class) */
   public build(): InlineKeyboardMarkup {
     const cleanKeyboard = this.matrix.filter(row => row.length > 0);
     return { inline_keyboard: cleanKeyboard };
   }
 
-  /** Дозволяє автоматично серіалізувати об'єкт у JSON */
+  /** Allows automatic serialization of the object to JSON */
   public toJSON(): InlineKeyboardMarkup {
     return this.build();
   }
 }
 
 // ============================================================================
-// REPLY KEYBOARD (Кнопки замість клавіатури телефону)
+// REPLY KEYBOARD (Buttons instead of the phone keyboard)
 // ============================================================================
 export class ReplyKeyboard extends BaseKeyboard<KeyboardButton> {
   private options: Partial<Omit<ReplyKeyboardMarkup, 'keyboard'>> = {};
 
-  /** Додає звичайну текстову кнопку */
+  /** Adds a regular text button */
   public text(text: string): this {
     return this.addButton({ text });
   }
@@ -186,7 +186,7 @@ export class ReplyKeyboard extends BaseKeyboard<KeyboardButton> {
   }
 
   // =====================================
-  // НАЛАШТУВАННЯ КЛАВІАТУРИ
+  // KEYBOARD SETTINGS
   // =====================================
 
   public persistent(is_persistent: boolean = true): this {
@@ -214,7 +214,7 @@ export class ReplyKeyboard extends BaseKeyboard<KeyboardButton> {
     return this;
   }
 
-  /** Збирає фінальний об'єкт (використовуємо this.matrix з базового класу) */
+  /** Builds the final object (uses this.matrix from the base class) */
   public build(): ReplyKeyboardMarkup {
     const cleanKeyboard = this.matrix.filter(row => row.length > 0);
     return {
@@ -223,13 +223,13 @@ export class ReplyKeyboard extends BaseKeyboard<KeyboardButton> {
     };
   }
 
-  /** Дозволяє автоматично серіалізувати об'єкт у JSON */
+  /** Allows automatic serialization of the object to JSON */
   public toJSON(): ReplyKeyboardMarkup {
     return this.build();
   }
 
   // =====================================
-  // СТАТИЧНІ ХЕЛПЕРИ
+  // STATIC HELPERS
   // =====================================
 
   public static remove(selective?: boolean): ReplyKeyboardRemove {

@@ -57,7 +57,7 @@ export class Context {
     this.update = update;
     this.api = api;
 
-    // Шукаємо повідомлення в усіх можливих полях оновлення
+    // Search for the message in all possible update fields
     this.message =
       update.message ||
       update.edited_message ||
@@ -72,7 +72,7 @@ export class Context {
   }
 
   /**
-   * ID чату, в якому відбулася подія
+   * ID of the chat where the event occurred
    */
   public get chatId(): number | undefined {
     return (
@@ -84,7 +84,7 @@ export class Context {
   }
 
   /**
-   * Користувач, який ініціював подію
+   * User who initiated the event
    */
   public get from() {
     const msg = this.message;
@@ -101,7 +101,7 @@ export class Context {
   }
 
   /**
-   * Текст повідомлення або підпис до медіафайлу
+   * Message text or caption for the media file
    */
   public get text(): string | undefined {
     const msg = this.message;
@@ -114,10 +114,10 @@ export class Context {
   }
 
   /**
-   * Універсальний хелпер для отримання ID чату та повідомлення.
-   * @param operation Назва операції для тексту помилки
-   * @param force Чи обов'язково повідомлення має бути доступним?
-   *              (true для edit/delete, false для reply)
+   * Universal helper for obtaining chat ID and message ID.
+   * @param operation Name of the operation for the error text
+   * @param force Is the message required to be accessible?
+   *              (true for edit/delete, false for reply)
    */
   private getRequiredIds(operation: string): { chatId: number; messageId: number };
   private getRequiredIds(operation: string, force: true): { chatId: number; messageId: number };
@@ -126,10 +126,10 @@ export class Context {
     const chatId = this.chatId;
 
     if (!chatId) {
-      throw new Error(`Неможливо виконати ${operation}: chat_id не знайдено.`);
+      throw new Error(`Cannot perform ${operation}: chat_id not found.`);
     }
 
-    // Якщо це "м'яка" перевірка (force: false)
+    // If this is a "soft" check (force: false)
     if (!force) {
       return {
         chatId,
@@ -137,10 +137,10 @@ export class Context {
       };
     }
 
-    // Якщо це "жорстка" перевірка (force: true)
+    // If this is a "hard" check (force: true)
     const messageId = this.message?.message_id;
     if (!this.isMessageAccessible || !messageId) {
-      throw new Error(`Неможливо виконати ${operation}: повідомлення недоступне або видалене.`);
+      throw new Error(`Cannot perform ${operation}: message is inaccessible or deleted.`);
     }
 
     return { chatId, messageId };
@@ -148,17 +148,17 @@ export class Context {
 
 
   /**
-   * Перевіряє, чи є повідомлення доступним для читання/відповіді (не є InaccessibleMessage)
+   * Checks if the message is accessible for reading/replying (not an InaccessibleMessage)
    */
   public get isMessageAccessible(): boolean {
     return !!this.message && this.message.date !== 0;
   }
 
   /**
-   * Відповісти на поточне повідомлення текстовим повідомленням
+   * Reply to the current message with a text message
    * 
-   * @param text - текст повідомлення
-   * @param options - об'єкт параметрів
+   * @param text - message text
+   * @param options - parameters object
    * @returns `Promise<Message>`
    */
   public async reply(
@@ -176,10 +176,10 @@ export class Context {
   }
 
   /**
-   * Відповісти на поточне повідомлення з клавіатурою (Inline або Reply)
-   * @param text - текст повідомлення
-   * @param keyboard - клавіатура
-   * @param options - об'єкт параметрів
+   * Reply to the current message with a keyboard (Inline or Reply)
+   * @param text - message text
+   * @param keyboard - keyboard
+   * @param options - parameters object
    * @returns `Promise<Message>`
    */
   public async replyWithKeyboard(
@@ -187,17 +187,21 @@ export class Context {
     keyboard: InlineKeyboard | ReplyKeyboard | InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply,
     options?: Omit<SendMessageParams, "chat_id" | "text" | "reply_markup">
   ): Promise<Message> {
+    const reply_markup = (keyboard instanceof InlineKeyboard || keyboard instanceof ReplyKeyboard)
+      ? keyboard.build()
+      : keyboard;
+
     return this.reply(text, {
-      reply_markup: keyboard as any,
+      reply_markup: reply_markup as InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply,
       ...options,
     });
   }
 
   /**
-   * Швидка відповідь з Inline-клавіатурою
-   * @param text - текст повідомлення
-   * @param buttons - клавіатура
-   * @param options - об'єкт параметрів
+   * Quick reply with an Inline keyboard
+   * @param text - message text
+   * @param buttons - keyboard
+   * @param options - parameters object
    * @returns `Promise<Message>`
    */
   public async replyWithInlineKeyboard(
@@ -205,20 +209,20 @@ export class Context {
     buttons: InlineKeyboardButton[][] | InlineKeyboard,
     options?: Omit<SendMessageParams, "chat_id" | "text" | "reply_markup">
   ): Promise<Message> {
-    const reply_markup = buttons instanceof InlineKeyboard
-      ? buttons
+    const markup = buttons instanceof InlineKeyboard
+      ? buttons.build()
       : { inline_keyboard: buttons };
 
     return this.reply(text, {
-      reply_markup: reply_markup as any,
+      reply_markup: markup,
       ...options,
     });
   }
 
   /**
-   * Відповісти на поточне повідомлення фотографією
-   * @param photo URL картинки або `file_id`
-   * @param options Об'єкт параметрів або просто текст сповіщення
+   * Reply to the current message with a photo
+   * @param photo URL of the image or `file_id`
+   * @param options Parameters object or just the notification text
    * @returns `Promise<Message>`
    */
   public async replyWithPhoto(
@@ -236,9 +240,9 @@ export class Context {
   }
 
   /**
-   * Відповісти на поточне повідомлення відеофайлом
-   * @param video URL відео або `file_id`
-   * @param options Об'єкт параметрів або просто текст сповіщення
+   * Reply to the current message with a video file
+   * @param video URL of the video or `file_id`
+   * @param options Parameters object or just the notification text
    * @returns `Promise<Message>`
    */
   public async replyWithVideo(
@@ -256,9 +260,9 @@ export class Context {
   }
 
   /**
-   * Відповісти на поточне повідомлення документом (файлом)
-   * @param document URL файлу або `file_id`
-   * @param options Об'єкт параметрів або просто текст сповіщення
+   * Reply to the current message with a document (file)
+   * @param document URL of the file or `file_id`
+   * @param options Parameters object or just the notification text
    * @returns `Promise<Message>`
    */
   public async replyWithDocument(
@@ -276,10 +280,10 @@ export class Context {
   }
 
   /**
-   * Відповісти на поточне повідомлення "живим фото" (Live Photo)
-   * @param photo URL фотографії або `file_id`
-   * @param livePhoto URL "живого фото" або `file_id`
-   * @param options Об'єкт параметрів або просто текст сповіщення
+   * Reply to the current message with a "live photo" (Live Photo)
+   * @param photo URL of the photo or `file_id`
+   * @param livePhoto URL of the "live photo" or `file_id`
+   * @param options Parameters object or just the notification text
    * @returns `Promise<Message>`
    */
   public async replyWithLivePhoto(
@@ -299,9 +303,9 @@ export class Context {
   }
 
   /**
-   * Надіслати подарунок (Star Gift) поточному користувачу
-   * @param giftId ID подарунка
-   * @param options Об'єкт параметрів
+   * Send a gift (Star Gift) to the current user
+   * @param giftId Gift ID
+   * @param options Parameters object
    * @returns `Promise<boolean>`
    */
   public async sendGift(
@@ -309,7 +313,7 @@ export class Context {
     options?: Omit<SendGiftParams, "user_id" | "chat_id" | "gift_id">
   ): Promise<boolean> {
     const fromId = this.from?.id;
-    if (!fromId) throw new Error("Неможливо надіслати подарунок: user_id не знайдено.");
+    if (!fromId) throw new Error("Cannot send gift: user_id not found.");
 
     return this.api.sendGift({
       user_id: fromId,
@@ -319,21 +323,21 @@ export class Context {
   }
 
   /**
-   * Прибрати завантаження з інлайн-кнопки
-   * @param params Об'єкт параметрів або просто текст сповіщення
+   * Remove loading indicator from an inline button
+   * @param params Parameters object or just the notification text
    * @returns `Promise<boolean>`
    */
   public async answerCbQuery(
     params?: (Partial<AnswerCallbackQueryParams>) | string
   ): Promise<boolean> {
-    // 1. Визначаємо ID: пріоритет у переданого в params, інакше — з контексту
+    // 1. Determine ID: priority for the one passed in params, otherwise from context
     const cbId = (typeof params === 'object' ? params?.callback_query_id : undefined) || this.callbackQuery?.id;
 
     if (!cbId) {
-      throw new Error("Неможливо виконати answerCbQuery: callback_query_id не знайдено.");
+      throw new Error("Cannot perform answerCbQuery: callback_query_id not found.");
     }
 
-    // 2. Якщо передано рядок — це скорочення для { text: "..." }
+    // 2. If a string is passed, it is shorthand for { text: "..." }
     if (typeof params === "string") {
       return this.api.answerCallbackQuery({
         callback_query_id: cbId,
@@ -341,7 +345,7 @@ export class Context {
       });
     }
 
-    // 3. Якщо передано об'єкт — використовуємо його, додаючи/перевизначаючи ID
+    // 3. If an object is passed, use it, adding/overriding the ID
     return this.api.answerCallbackQuery({
       ...params,
       callback_query_id: cbId,
@@ -349,8 +353,8 @@ export class Context {
   }
 
   /**
-   * Поставити реакцію на поточне повідомлення
-   * @param reactions Масив реакцій (наприклад: `[{ type: "emoji", emoji: "👍" }]`)
+   * React to the current message
+   * @param reactions Array of reactions (e.g.: `[{ type: "emoji", emoji: "👍" }]`)
    * @returns `Promise<boolean>`
    */
   public async react(reactions: ReactionType[]): Promise<boolean> {
@@ -364,8 +368,8 @@ export class Context {
   }
 
   /**
-   * Надіслати статус дії в поточний чат (наприклад, "typing", "upload_photo")
-   * @param action Статус дії (наприклад, "typing", "upload_photo")
+   * Send chat action status to the current chat (e.g., "typing", "upload_photo")
+   * @param action Action status (e.g., "typing", "upload_photo")
    * @returns `Promise<boolean>`
    */
   public async replyWithChatAction(
@@ -380,7 +384,7 @@ export class Context {
   }
 
   /**
-   * Видалити поточне повідомлення
+   * Delete the current message
    * @returns `Promise<boolean>`
    */
   public async deleteMessage(): Promise<boolean> {
@@ -393,9 +397,9 @@ export class Context {
   }
 
   /**
-   * Редагувати текст поточного повідомлення
-   * @param text - текст повідомлення
-   * @param options - об'єкт параметрів
+   * Edit the text of the current message
+   * @param text Message text
+   * @param options Additional parameters
    * @returns `Promise<Message | boolean>`
    */
   public async editMessage(
@@ -413,8 +417,8 @@ export class Context {
   }
 
   /**
-   * Переслати поточне повідомлення в інший чат
-   * @param toChatId - ID чату, куди пересилаємо повідомлення
+   * Forward the current message to another chat
+   * @param toChatId ID of the chat where the message is forwarded
    * @returns `Promise<Message>`
    */
   public async forwardTo(toChatId: string | number): Promise<Message> {
@@ -428,8 +432,8 @@ export class Context {
   }
 
   /**
-   * Скопіювати поточне повідомлення в інший чат
-   * @param toChatId - ID чату, куди копіюємо повідомлення
+   * Copy the current message to another chat
+   * @param toChatId ID of the chat where the message is copied
    * @returns `Promise<MessageId>`
    */
   public async copyTo(toChatId: string | number): Promise<MessageId> {
@@ -443,23 +447,23 @@ export class Context {
   }
 
   /**
-   * Повертає аргументи команди (все, що йде після назви команди).
-   * Наприклад: для повідомлення "/start ref_123" поверне "ref_123".
-   * Якщо це просто "/start", поверне порожній рядок.
+   * Returns command arguments (everything that follows the command name).
+   * Example: for the message "/start ref_123", it will return "ref_123".
+   * If it is just "/start", it will return an empty string.
    * @returns `string`
    */
   public get payload(): string {
     const txt = this.text;
     if (!txt || !txt.startsWith('/')) return '';
 
-    const parts = txt.split(/\s+/); // Розбиваємо по пробілах (один або більше)
+    const parts = txt.split(/\s+/); // Split by spaces (one or more)
     if (parts.length <= 1) return '';
 
     return parts.slice(1).join(' ').trim();
   }
 
   /**
-   * ID користувача, який ініціював подію
+   * ID of the user who initiated the event
    * @returns `number | undefined`
    */
   public get senderId(): number | undefined {
@@ -467,8 +471,8 @@ export class Context {
   }
 
   /**
-   * Змінити лише інлайн-клавіатуру поточного повідомлення
-   * @param replyMarkup - клавіатура
+   * Change only the inline keyboard of the current message
+   * @param replyMarkup - keyboard
    * @returns `Promise<Message | boolean>`
    */
   public async editReplyMarkup(
@@ -479,14 +483,14 @@ export class Context {
     return this.api.editMessageReplyMarkup({
       chat_id: chatId,
       message_id: messageId,
-      reply_markup: replyMarkup, // Якщо передати undefined, клавіатура зникне
+      reply_markup: replyMarkup, // If undefined is passed, the keyboard will disappear
     });
   }
 
   /**
-   * Змінити підпис до поточного медіафайлу (фото/відео)
-   * @param caption - підпис
-   * @param options - об'єкт параметрів
+   * Change the caption of the current media file (photo/video)
+   * @param caption - caption
+   * @param options - parameters object
    * @returns `Promise<Message | boolean>`
    */
   public async editCaption(
@@ -504,7 +508,7 @@ export class Context {
   }
 
   /**
-   * Отримати список адміністраторів поточного чату
+   * Get the list of administrators of the current chat
    * @returns `Promise<ChatMember[]>`
    */
   public async getAdministrators() {
@@ -513,8 +517,8 @@ export class Context {
   }
 
   /**
-   * Отримати інформацію про конкретного учасника в поточному чаті
-   * @param userId - ID користувача
+   * Get information about a specific member in the current chat
+   * @param userId User ID
    * @returns `Promise<ChatMember>`
    */
   public async getMember(userId: number) {
@@ -523,7 +527,7 @@ export class Context {
   }
 
   /**
-   * Вийти з поточного чату (групи/каналу)
+   * Leave the current chat (group/channel)
    * @returns `Promise<boolean>`
    */
   public async leaveChat(): Promise<boolean> {
@@ -531,11 +535,11 @@ export class Context {
     return this.api.leaveChat({ chat_id: chatId });
   }
 
-  // --- ПЛАТЕЖІ (PAYMENTS) ---
+  // --- PAYMENTS ---
 
   /**
-   * Надіслати рахунок на оплату (Invoice) у поточний чат
-   * @param params - об'єкт параметрів
+   * Send an invoice to the current chat
+   * @param params Parameters object
    * @returns `Promise<Message>`
    */
   public async replyWithInvoice(
@@ -549,9 +553,9 @@ export class Context {
   }
 
   /**
-   * Відповісти на запит доставки (Shipping Query)
-   * @param ok - чи все гаразд
-   * @param options - об'єкт параметрів
+   * Answer a shipping query (Shipping Query)
+   * @param ok Is everything okay
+   * @param options Additional parameters
    * @returns `Promise<boolean>`
    */
   public async answerShippingQuery(
@@ -559,7 +563,7 @@ export class Context {
     options?: Omit<AnswerShippingQueryParams, "shipping_query_id" | "ok">
   ): Promise<boolean> {
     const queryId = this.update.shipping_query?.id;
-    if (!queryId) throw new Error("Неможливо відповісти на Shipping Query: id не знайдено.");
+    if (!queryId) throw new Error("Cannot answer Shipping Query: id not found.");
 
     return this.api.answerShippingQuery({
       shipping_query_id: queryId,
@@ -569,9 +573,9 @@ export class Context {
   }
 
   /**
-   * Відповісти на запит фінального підтвердження замовлення (Pre-checkout Query)
-   * @param ok - чи все гаразд
-   * @param errorMessage - повідомлення про помилку
+   * Answer a pre-checkout query (Pre-checkout Query)
+   * @param ok Is everything okay
+   * @param errorMessage Error message
    * @returns `Promise<boolean>`
    */
   public async answerPreCheckoutQuery(
@@ -579,7 +583,7 @@ export class Context {
     errorMessage?: string
   ): Promise<boolean> {
     const queryId = this.update.pre_checkout_query?.id;
-    if (!queryId) throw new Error("Неможливо відповісти на Pre-checkout Query: id не знайдено.");
+    if (!queryId) throw new Error("Cannot answer Pre-checkout Query: id not found.");
 
     return this.api.answerPreCheckoutQuery({
       pre_checkout_query_id: queryId,
@@ -588,12 +592,12 @@ export class Context {
     });
   }
 
-  // --- ІГРИ (GAMES) ---
+  // --- GAMES ---
 
   /**
-   * Надіслати гру в поточний чат
-   * @param gameShortName - короткий логін гри
-   * @param options - об'єкт параметрів
+   * Send a game to the current chat
+   * @param gameShortName - short name of the game
+   * @param options - parameters object
    * @returns `Promise<Message>`
    */
   public async replyWithGame(
@@ -609,9 +613,9 @@ export class Context {
   }
 
   /**
-   * Встановити рекорд для гравця в грі
-   * @param score - рахунок гри
-   * @param options - об'єкт параметрів
+   * Set a high score for a player in the game
+   * @param score - game score
+   * @param options - parameters object
    * @returns `Promise<Message | boolean>`
    */
   public async setGameScore(
@@ -619,9 +623,9 @@ export class Context {
     options?: Omit<SetGameScoreParams, "user_id" | "score">
   ): Promise<Message | boolean> {
     const fromId = this.from?.id;
-    if (!fromId) throw new Error("Неможливо встановити рахунок гри: user_id не знайдено.");
+    if (!fromId) throw new Error("Cannot set game score: user_id not found.");
 
-    // Пріоритет віддаємо inline_message_id, якщо він є
+    // Priority is given to inline_message_id, if it exists
     const inlineId = this.callbackQuery?.inline_message_id;
     const { chatId, messageId } = inlineId ? { chatId: undefined, messageId: undefined } : this.getRequiredIds("setGameScore", true);
 
@@ -636,12 +640,12 @@ export class Context {
   }
 
   /**
-   * Отримати таблицю рекордів гри
+   * Get high scores table for the game
    * @returns `Promise<GameHighScore[]>`
    */
   public async getGameHighScores(): Promise<GameHighScore[]> {
     const fromId = this.from?.id;
-    if (!fromId) throw new Error("Неможливо отримати рекорди гри: user_id не знайдено.");
+    if (!fromId) throw new Error("Cannot get game high scores: user_id not found.");
 
     const inlineId = this.callbackQuery?.inline_message_id;
     const { chatId, messageId } = inlineId ? { chatId: undefined, messageId: undefined } : this.getRequiredIds("getGameHighScores", true);
@@ -655,9 +659,9 @@ export class Context {
   }
 
   /**
-   * Відповісти на гостьовий запит (Guest Mode)
-   * @param result - результат запиту
-   * @param options - об'єкт параметрів
+   * Answer a guest query (Guest Mode)
+   * @param result - query result
+   * @param options - parameters object
    * @returns `Promise<SentGuestMessage>`
    */
   public async answerGuest(
@@ -667,7 +671,7 @@ export class Context {
     const msg = this.message as Message | undefined;
     const queryId = this.update.guest_message?.guest_query_id || msg?.guest_query_id;
 
-    if (!queryId) throw new Error("Відсутній guest_query_id");
+    if (!queryId) throw new Error("Missing guest_query_id");
 
     return this.api.answerGuestQuery({
       guest_query_id: queryId,
@@ -677,9 +681,9 @@ export class Context {
   }
 
   /**
-   * Видалити реакцію на поточному повідомленні.
-   * За замовчуванням видаляє реакцію користувача, який ініціював подію.
-   * @param options - об'єкт параметрів
+   * Delete reaction on the current message.
+   * By default, deletes the reaction of the user who initiated the event.
+   * @param options - parameters object
    * @returns `Promise<boolean>`
    */
   public async deleteReaction(
@@ -687,8 +691,8 @@ export class Context {
   ): Promise<boolean> {
     const { chatId, messageId } = this.getRequiredIds("deleteReaction", true);
 
-    // Якщо розробник не передав конкретний user_id чи actor_chat_id, 
-    // за замовчуванням підставляємо ID поточного користувача
+    // If the developer did not pass a specific user_id or actor_chat_id, 
+    // by default we substitute the ID of the current user
     const defaultOptions = (!options?.user_id && !options?.actor_chat_id)
       ? { user_id: this.from?.id }
       : {};
@@ -702,9 +706,9 @@ export class Context {
   }
 
   /**
-   * Видалити всі реакції конкретного користувача у поточному чаті (до 10 000).
-   * За замовчуванням видаляє реакції користувача, який ініціював подію.
-   * @param options - об'єкт параметрів
+   * Delete all reactions of a specific user in the current chat (up to 10,000).
+   * By default, deletes the reactions of the user who initiated the event.
+   * @param options - parameters object
    * @returns `Promise<boolean>`
    */
   public async deleteAllReactions(
@@ -724,11 +728,11 @@ export class Context {
   }
 
   /**
-   * Надіслати опитування або вікторину (Poll / Quiz) у поточний чат.
-   * Підтримує нові фічі API 10.0: media, explanation_media, 1 варіант відповіді.
-   * @param question - текст опитування
-   * @param pollOptions - варіанти відповідей
-   * @param options - об'єкт параметрів
+   * Send a poll or quiz (Poll / Quiz) to the current chat.
+   * Supports new API 10.0 features: media, explanation_media, 1 answer option.
+   * @param question - poll text
+   * @param pollOptions - answer options
+   * @param options - parameters object
    * @returns `Promise<Message>`
    */
   public async replyWithPoll(
@@ -752,10 +756,10 @@ export class Context {
   }
 
   /**
-   * Стрімінг тимчасового повідомлення (Draft) для генерації відповідей (наприклад, ШІ).
-   * Це ефемерне повідомлення живе 30 секунд. Після завершення обов'язково треба викликати звичайний reply().
-   * @param draftId - унікальний ідентифікатор стріму (повинен бути > 0). Однакові ID анімують зміни.
-   * @param options - об'єкт параметрів
+   * Streaming a temporary message (Draft) for generating responses (e.g., AI).
+   * This ephemeral message lives for 30 seconds. After completion, it is mandatory to call a regular reply().
+   * @param draftId - unique stream identifier (must be > 0). Identical IDs animate changes.
+   * @param options - parameters object
    * @returns `Promise<boolean>`
    */
   public async replyWithDraft(
@@ -772,10 +776,10 @@ export class Context {
   }
 
   /**
-   * Надіслати групу медіафайлів (альбом).
-   * Підтримує фото, відео, аудіо, документи та нові Live Photos (API 10.0).
-   * @param media - масив медіафайлів
-   * @param options - об'єкт параметрів
+   * Send a group of media files (album).
+   * Supports photos, videos, audio, documents, and new Live Photos (API 10.0).
+   * @param media - array of media files
+   * @param options - parameters object
    * @returns `Promise<Message[]>`
    */
   public async replyWithMediaGroup(
@@ -793,10 +797,10 @@ export class Context {
   }
 
   /**
-   * Надіслати платне медіа, за перегляд якого користувач має заплатити Telegram Зірками.
-   * @param starCount - кількість зірок, яку має заплатити користувач
-   * @param media - масив медіафайлів
-   * @param options - об'єкт параметрів
+   * Send paid media, for viewing which the user must pay with Telegram Stars.
+   * @param starCount - number of stars the user must pay
+   * @param media - array of media files
+   * @param options - parameters object
    * @returns `Promise<Message>`
    */
   public async replyWithPaidMedia(

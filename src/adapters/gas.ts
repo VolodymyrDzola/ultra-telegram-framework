@@ -1,11 +1,11 @@
 // src/adapters/gas.ts
-import { BaseTelegramClient } from '../core/base-api';
+import { BaseTelegramClient, TelegramErrorResponse, TelegramApiResponse } from '../core/base-api';
 
 export class GasApiClient extends BaseTelegramClient {
   /**
-   * Відправляє запит до Telegram API.
-   * @param method - назва методу
-   * @param payload - об'єкт параметрів
+   * Sends a request to the Telegram API.
+   * @param method - method name
+   * @param payload - parameters object
    * @returns `Promise<T>`
    */
   public async callApi<T>(method: string, payload: Record<string, unknown> = {}): Promise<T> {
@@ -15,8 +15,8 @@ export class GasApiClient extends BaseTelegramClient {
     const files: Record<string, GoogleAppsScript.Base.Blob> = {};
 
     /**
-     * Рекурсивна функція для пошуку файлів у вкладених об'єктах.
-     * @param value - значення для обробки
+     * Recursive function to find files in nested objects.
+     * @param value - value to process
      * @returns `unknown`
      */
     const extractFiles = (value: unknown): unknown => {
@@ -80,7 +80,7 @@ export class GasApiClient extends BaseTelegramClient {
     const contentText = response.getContentText();
 
     if (statusCode !== 200) {
-      let errorData: any;
+      let errorData: TelegramErrorResponse;
       try {
         errorData = JSON.parse(contentText);
       } catch {
@@ -89,7 +89,7 @@ export class GasApiClient extends BaseTelegramClient {
       throw new Error(`Telegram API Error ${statusCode}: ${errorData.description}`);
     }
 
-    const data = JSON.parse(contentText);
+    const data = JSON.parse(contentText) as TelegramApiResponse<T>;
 
     if (!data.ok) {
       throw new Error(`Telegram Logic Error: ${data.description}`);

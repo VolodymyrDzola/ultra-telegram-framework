@@ -1,19 +1,19 @@
 import { Storage } from './storage';
 
 /**
- * Сховище сесій для Google Apps Script на базі PropertiesService.
- * Дозволяє зберігати стан між різними запитами (doPost).
+ * Session storage for Google Apps Script based on PropertiesService.
+ * Allows storing state between different requests (doPost).
  * 
- * ✅ Плюси: надійне, не має ліміту в 6 годин, добре підходить для великих даних
- * ❌ Мінуси: повільніше за CacheService, має ліміт 500 запитів/день
+ * ✅ Pros: reliable, no 6-hour limit, well-suited for large data
+ * ❌ Cons: slower than CacheService, has a limit of 500 requests/day
  */
 export class PropertiesStorage<T> implements Storage<T> {
   private service: GoogleAppsScript.Properties.Properties;
   private prefix: string;
 
   /**
-   * @param service Яку службу використовувати (за замовчуванням ScriptProperties)
-   * @param prefix Префікс для ключів у сховищі (щоб не перемішувати з іншими налаштуваннями)
+   * @param service Which service to use (ScriptProperties by default)
+   * @param prefix Prefix for keys in storage (to avoid mixing with other settings)
    */
   constructor(
     service: GoogleAppsScript.Properties.Properties = PropertiesService.getScriptProperties(),
@@ -30,7 +30,7 @@ export class PropertiesStorage<T> implements Storage<T> {
     try {
       return JSON.parse(raw) as T;
     } catch (e) {
-      console.error(`Помилка парсингу сесії для ключа ${key}:`, e);
+      console.error(`Error parsing session for key ${key}:`, e);
       return undefined;
     }
   }
@@ -45,7 +45,7 @@ export class PropertiesStorage<T> implements Storage<T> {
   }
 
   /**
-   * Очистити ВСІ сесії з цим префіксом
+   * Clear ALL sessions with this prefix
    */
   public clearAll(): void {
     const all = this.service.getProperties();

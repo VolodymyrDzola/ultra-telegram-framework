@@ -25,3 +25,6 @@ export * from './scenes/scene-manager';
 
 // TYPES
 export * from './types/telegram';
+
+// ALIASES
+export * from './core/bot';

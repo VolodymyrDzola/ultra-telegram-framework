@@ -1,22 +1,22 @@
 // src/session/storage.ts
 
 /**
- * Інтерфейс сховища для сесій.
- * T - тип даних сесії, які ми зберігаємо.
+ * Interface for session storage.
+ * T - type of session data we store.
  */
 export interface Storage<T> {
   /**
-   * Отримати дані сесії за ключем.
+   * Get session data by key.
    */
   get(key: string): Promise<T | undefined> | T | undefined;
 
   /**
-   * Зберегти дані сесії за ключем.
+   * Save session data by key.
    */
   set(key: string, value: T): Promise<void> | void;
 
   /**
-   * Видалити сесію (наприклад, якщо користувач завершив діалог).
+   * Delete session (e.g., if the user finished the dialogue).
    */
   delete(key: string): Promise<void> | void;
 }

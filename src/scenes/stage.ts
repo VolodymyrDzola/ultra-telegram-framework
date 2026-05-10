@@ -19,26 +19,26 @@ export class Stage<C extends SceneContext> extends Composer<C> {
     const globalHandler = super.middleware();
 
     return async (ctx, next) => {
-      // 1. Гідратуємо контекст менеджером сцен
+      // 1. Hydrate context with scene manager
       ctx.scene = new SceneManager(ctx);
 
       const activeSceneName = ctx.scene.session.name;
 
-      // 2. Якщо користувач НЕ у сцені, передаємо подію глобальним обробникам бота
+      // 2. If the user is NOT in a scene, pass the event to global bot handlers
       if (!activeSceneName) {
         return globalHandler(ctx, next);
       }
 
-      // 3. Якщо сцена активна, знаходимо її
+      // 3. If the scene is active, find it
       const scene = this.scenes.get(activeSceneName);
 
       if (!scene) {
-        // Захист від битих сесій: якщо сцена видалена з коду, виходимо
+        // Protection against broken sessions: if the scene has been deleted from the code, exit
         ctx.scene.leave();
         return globalHandler(ctx, next);
       }
 
-      // 4. Передаємо керування активній сцені
+      // 4. Pass control to the active scene
       await scene.middleware()(ctx, next);
     };
   }
