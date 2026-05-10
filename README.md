@@ -1,97 +1,174 @@
 # 🚀 Ultra Telegram Framework (UTF)
 
-A modern, lightweight, and fully-typed framework for creating Telegram bots. Built with a focus on speed, flexibility, and out-of-the-box support for the latest Bot API features and serverless environments.
+[![Bot API 10.0](https://img.shields.io/badge/Bot%20API-10.0-blue.svg)](https://core.telegram.org/bots/api)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
+[![Documentation](https://img.shields.io/badge/docs-TypeDoc-blue.svg)](https://volodymyrdzola.github.io/ultra-tg-framework/)
+[![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-[![Documentation](https://img.shields.io/badge/docs-TypeDoc-blue.svg)](https://volodymyrdzola.github.io/tg-framework/) [![MIT License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+**Ultra Telegram Framework (UTF)** is a modern, lightweight, and strongly typed Telegram Bot API framework built for **TypeScript**.
 
-## ⚡️ Why UTF? (The Edge Over Others)
-
-While there are many great frameworks like grammY, UTF is specifically designed to solve the pain points of deploying bots on serverless platforms like **Google Apps Script (GAS)**, while providing a seamless migration path as your bot grows.
-
-* **🥇 Native Google Apps Script Support:** Unlike other frameworks that require complex polyfills to mock `fetch()` on GAS, UTF includes a native `GasApiClient`. It works out of the box using Google's `UrlFetchApp`.
-* **🧠 Smart Hybrid Sessions for GAS:** GAS is stateless and has strict limits on `PropertiesService` and `CacheService`. UTF includes a unique `GasHybridStorage` that seamlessly combines both, allowing you to build complex multi-step forms without losing user data or hitting quotas.
-* **🔋 Batteries Included:** No need to hunt for external plugins. Advanced features like `WizardScene` (for step-by-step dialogues), `SceneManager`, and interactive `InlineMenu` are built directly into the core.
-* **🤖 AI & Monetization Ready:** Native Context helpers designed for modern bots. Use `ctx.replyWithDraft()` to stream "typing" indicators for slow LLM responses, or `ctx.replyWithPaidMedia()` to easily monetize via Telegram Stars ⭐️.
-* **🔄 Seamless Scaling:** Start for free on Google Apps Script. When you need more power, move your code to Node.js or Cloudflare Workers and simply change the adapter (`GasApiClient` -> `WebApiClient`) — **zero changes to your business logic required**.
+Designed with flexibility in mind, UTF features a unique **adapter-based architecture** that allows your bot to run seamlessly across various environments — from classic Node.js servers to Serverless Edge functions and Google Apps Script — without rewriting your core logic.
 
 ---
 
-## 🏗️ Architecture
+## ✨ Why Choose UTF?
 
-The framework is built on principles of scalability and strict typing. It follows a modular structure to ensure easy scaling and dependency injection:
+### 🌍 Write Once, Run Anywhere
+UTF provides dedicated API clients optimized for specific runtimes:
+- **`NodeApiClient`** — Node.js 18+ with native `fetch` and Webhook Reply optimizations.
+- **`WebApiClient`** — Universal client for Edge runtimes (Cloudflare Workers, Vercel Edge, Deno, Bun).
+- **`GasApiClient`** — Exclusive adapter for **Google Apps Script** using `UrlFetchApp`.
 
-* **Core:** Fundamental classes for interacting with the API and handling events using a Middleware-based approach.
-* **Context:** Uses a **hydration** approach where the raw Telegram `Update` is wrapped in a `Context` instance, providing unified methods for quick responses.
-* **Adapters:** Environment-specific modules ensuring compatibility with Node.js, GAS, and Web/Fetch environments.
-* **Scenes & Stages:** Advanced logic for creating complex multi-step dialogues using `WizardScene` and `SceneManager`.
-* **Session:** Persistent user state storage between messages with support for Memory, GAS Cache, and Hybrid backends.
+### 🔘 Declarative Inline Menus
+Build interactive, multi-page menus with the page-based `InlineMenu` system. Define pages with `.page()` and button actions with `.action()`, with automatic state management and navigation.
+
+### 🤖 AI-Ready & Streaming Support
+The `ctx.replyWithDraft()` method lets you stream "thinking" indicators for LLM responses with built-in rate-limit protection and auto-debouncing.
+
+### 🛡️ 100% Type-Safe
+Exhaustive TypeScript typings for **all** Telegram Bot API 10.0 objects, methods, and parameters. Rich IDE autocompletion and compile-time error checking.
+
+### 🎭 Built-in Scenes & Sessions
+Manage multi-step flows with `WizardScene`, `Stage`, and `SceneManager`. Multiple session storage adapters included: `MemoryStorage`, `PropertiesStorage`, `CacheStorage`, and the exclusive `GasHybridStorage`.
+
+### 🔋 Batteries Included
+No external plugins needed. Scenes, sessions, inline menus, keyboards, and error handling are all part of the core framework.
 
 ---
 
-## 🚀 Quick Start
-
-### Installation
+## 📦 Installation
 
 ```bash
-git clone https://github.com/VolodymyrDzola/tg-framework.git
-cd tg-framework
-npm install
-
-```
-
-### Example (Node.js / Edge)
-
-```typescript
-import { Bot, WebApiClient } from './src';
-
-// Initialize the bot with the appropriate adapter
-const bot = new Bot('YOUR_TOKEN', new WebApiClient('YOUR_TOKEN'));
-
-bot.command('start', async (ctx) => {
-  await ctx.reply('Hello! I am running on UTF with API 10.0 support 🚀');
-});
-
-// AI Streaming Style Example
-bot.command('ai', async (ctx) => {
-  const draftId = Date.now();
-  
-  // Show a temporary drafting message (simulating AI thinking)
-  await ctx.replyWithDraft(draftId, "Please wait, I'm thinking...");
-  
-  // Your logic here...
-  
-  await ctx.reply("Here is your generated response!");
-});
-
-bot.launch();
-
+npm install ultra-tg-framework
 ```
 
 ---
 
-## 🧰 Context (ctx) Helpers
+## 🏁 Quick Start
 
-The `Context` object abstracts raw API calls into elegant methods. Besides standard API calls, it provides powerful high-level helpers:
+### Example 1: Node.js (Polling)
 
-| Method | Description |
-| --- | --- |
-| `ctx.reply(text)` | Simple response to the current chat. |
-| `ctx.replyWithDraft(id, text)` | Streams a temporary message (AI-style). Lives for 30 seconds. |
-| `ctx.replyWithPoll(...)` | Sends advanced polls/quizzes with media and explanations. |
-| `ctx.replyWithPaidMedia(...)` | Monetization: send media unlockable by Telegram Stars ⭐️. |
-| `ctx.deleteAllReactions()` | Clears all reactions from the current user in the chat. |
-| `ctx.scene.enter('name')` | Enters a specific Wizard scene for step-by-step input. |
+The fastest way to get started. No server setup required.
+
+```typescript
+import { TelegramBot, NodeApiClient } from 'ultra-tg-framework';
+
+const bot = new TelegramBot(new NodeApiClient('YOUR_BOT_TOKEN'));
+
+bot.command('start', async (ctx) => {
+  await ctx.reply('Hello! I am an Ultra Telegram Framework bot 🚀');
+});
+
+bot.on('text', async (ctx) => {
+  await ctx.reply(`You said: ${ctx.text}`);
+});
+
+bot.launch()
+  .then(() => console.log('Bot is running...'))
+  .catch(console.error);
+```
+
+### Example 2: Google Apps Script (Webhook)
+
+Deploy your bot for free on Google's infrastructure:
+
+```typescript
+import { TelegramBot, GasApiClient } from 'ultra-tg-framework';
+
+const bot = new TelegramBot(new GasApiClient('YOUR_BOT_TOKEN'));
+
+bot.command('start', async (ctx) => {
+  await ctx.reply('Hello from Google Apps Script! ☁️');
+});
+
+globalThis.doPost = (e: any) => {
+  if (e?.postData?.contents) {
+    const update = JSON.parse(e.postData.contents);
+    bot.handleUpdate(update);
+  }
+  return ContentService.createTextOutput('OK');
+};
+```
+
+### Example 3: Cloudflare Workers (Edge)
+
+Global low-latency deployment:
+
+```typescript
+import { TelegramBot, WebApiClient } from 'ultra-tg-framework';
+
+export default {
+  async fetch(request: Request, env: any, ctx: ExecutionContext) {
+    if (request.method !== 'POST') {
+      return new Response('Bot is running ⚡');
+    }
+
+    const update = await request.json();
+    const bot = new TelegramBot(new WebApiClient(env.BOT_TOKEN));
+
+    bot.command('start', async (ctx) => {
+      await ctx.reply('Hello from the Edge! 🌍⚡');
+    });
+
+    ctx.waitUntil(bot.handleUpdate(update));
+    return new Response('OK');
+  }
+};
+```
+
+---
+
+## 🧰 Key Features at a Glance
+
+| Feature | Description |
+| :--- | :--- |
+| **Context Helpers** | `ctx.reply()`, `ctx.editMessage()`, `ctx.answerCbQuery()`, `ctx.replyWithPhoto()`, and 30+ more. |
+| **Smart `ctx.text`** | Returns message text OR media caption — works universally. |
+| **`ctx.payload`** | Command arguments (e.g., `/start ref_123` → `"ref_123"`). |
+| **InlineKeyboard** | Fluent builder: `.text()`, `.url()`, `.webApp()`, `.menu()`, `.pay()`, `.game()`. |
+| **ReplyKeyboard** | `.text()`, `.requestContact()`, `.requestLocation()`, `.oneTime()`, `.resized()`. |
+| **InlineMenu** | Page-based menus with automatic navigation, back buttons, and state management. |
+| **WizardScene** | Linear step-by-step dialogues with `ctx.scene.next()`, `leave()`, `selectStep()`. |
+| **Session Storage** | `MemoryStorage`, `PropertiesStorage`, `CacheStorage`, `GasHybridStorage`. |
+| **Error Handling** | Built-in `bot.catch()` and middleware-based error boundaries. |
+| **AI Drafts** | `ctx.replyWithDraft()` for streaming LLM responses with rate-limit protection. |
+| **Paid Media** | `ctx.replyWithPaidMedia()` for Telegram Stars ⭐️ monetization. |
+| **Games** | `ctx.replyWithGame()`, `ctx.setGameScore()`, `ctx.getGameHighScores()`. |
+| **Payments** | `ctx.replyWithInvoice()`, `ctx.answerShippingQuery()`, `ctx.answerPreCheckoutQuery()`. |
+
+---
+
+## 📚 Documentation & Guides
+
+Explore the detailed guides in our [Wiki](https://github.com/VolodymyrDzola/ultra-tg-framework/wiki):
+
+### 🚀 Getting Started
+- **[Migrating to UTF](./Migrating-to-UTF.md)** — Step-by-step guide for upgrading from grammY, Telegraf, or legacy scripts.
+- **[Architecture](./ARCHITECTURE.md)** — Understand the adapter-based design and the four architectural layers.
+- **[Local Dev (Polling vs Webhooks)](./Local%20Dev%20Polling%20vs%20Webhooks.md)** — Best practices for running and testing your bot locally.
+
+### ☁️ Deployment
+- **[Deploy to GAS](./DEPLOY_GAS.md)** — Comprehensive tutorial for Google Apps Script deployment with `esbuild` and `clasp`.
+- **[Deploy to Edge](./Edge%20Computing.md)** — Cloudflare Workers, Deno Deploy, and Bun examples.
+
+### 🧠 Framework Deep Dive
+- **[Core (TelegramBot)](./Core.md)** — The bot entry point, lifecycle, and initialization.
+- **[Context](./Context.md)** — Complete API reference for the `ctx` object with all 40+ helper methods.
+- **[Composer & Routing](./Composer.md)** — `.command()`, `.on()`, `.action()`, type narrowing, and modular sub-routers.
+- **[Middleware](./Middleware.md)** — The "onion" model, context hydration, and chain control.
+- **[Sessions & Storage](./Session.md)** — Memory, GAS Cache, Hybrid, and custom storage adapters.
+- **[Error Handling](./Error_Handling.md)** — `bot.catch()`, middleware boundaries, and Telegram-specific error patterns.
+
+### 🧰 UI & Tools
+- **[Inline Menus](./InlineMenu.md)** — Page-based declarative menus with navigation and back buttons.
+- **[Wizard Scenes](./Wizard%20Scenes.md)** — Multi-step forms and conversational flows.
+- **[Handling Files](./Downloading%20Files.md)** — Working with Telegram files, downloads, and Google Drive integration.
+
+### 🔗 Resources
+- **[TypeDoc API Reference](https://volodymyrdzola.github.io/ultra-tg-framework/)** — Auto-generated TypeScript API documentation for all classes, methods, and types.
 
 ---
 
 ## 📄 License
 
-This project is licensed under the **MIT License**.
-
-## ☕️ Support the Project
-
-If this framework helped you launch your bot faster, consider supporting the developer!
-
-👉 **[Support via Monobank](https://send.monobank.ua/jar/9WEy6keH3v)**
-
-Thank you for your support! ❤️
+This project is licensed under the MIT License — see the [LICENSE](https://github.com/VolodymyrDzola/ultra-tg-framework?tab=MIT-1-ov-file) file for details.
