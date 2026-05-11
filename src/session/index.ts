@@ -1,10 +1,9 @@
 // src/session/index.ts
 import { Context } from '../core/context';
-import { Middleware } from '../core/composer';
 import { Storage } from './storage';
 import { MemoryStorage } from './memory-storage';
 
-export interface SessionData extends Record<string, any> { }
+export interface SessionData extends Record<string, unknown> { }
 
 declare module '../core/context' {
   interface Context {
@@ -12,12 +11,12 @@ declare module '../core/context' {
   }
 }
 
-export interface SessionOptions<S extends SessionData, C extends Context> {
+export interface SessionOptions<S extends SessionData> {
   /** Data storage (MemoryStorage by default) */
   storage?: Storage<S>;
 
   /** Key generation function ("chatId:userId" by default) */
-  getSessionKey?: (ctx: C) => string | undefined;
+  getSessionKey?: (ctx: Context) => string | undefined;
 
   /** Empty session initialization function (if data doesn't exist yet) */
   initial: () => S;
@@ -26,11 +25,11 @@ export interface SessionOptions<S extends SessionData, C extends Context> {
 /**
  * Middleware for adding sessions to the context.
  */
-export function SessionManager<S extends SessionData, C extends Context>(
-  options: SessionOptions<S, C>
-): Middleware<C> {
+export function SessionManager<S extends SessionData>(
+  options: SessionOptions<S>
+) {
   const storage = options.storage || new MemoryStorage<S>();
-  const getSessionKey = options.getSessionKey || ((ctx: C) => {
+  const getSessionKey = options.getSessionKey || ((ctx: Context) => {
     const chatId = ctx.chatId;
     const fromId = ctx.from?.id;
     if (chatId == null || fromId == null) {
@@ -39,7 +38,7 @@ export function SessionManager<S extends SessionData, C extends Context>(
     return `${chatId}:${fromId}`;
   });
 
-  return async (ctx, next) => {
+  return async (ctx: Context & { session: S }, next: () => Promise<void>) => {
     const key = getSessionKey(ctx);
 
     // If the key is not generated (e.g., system update), just proceed further
@@ -62,7 +61,7 @@ export function SessionManager<S extends SessionData, C extends Context>(
     if (ctx.session == null) {
       await Promise.resolve(storage.delete(key));
     } else {
-      await Promise.resolve(storage.set(key, ctx.session as S));
+      await Promise.resolve(storage.set(key, ctx.session));
     }
   };
 }
