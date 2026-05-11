@@ -45,10 +45,14 @@ export class TelegramBot<C extends Context = Context> extends Composer<C> {
    * @returns `Promise<void>`
    */
   public async handleUpdate(update: Update): Promise<void> {
-    const ctx = new Context(update, this.client.raw) as unknown as C;
-    // Start the middleware chain.
-    // Call this.middleware(), which returns a function with built-in try/catch and errorHandler
-    await this.middleware()(ctx, async () => { });
+    try {
+      const ctx = new Context(update, this.client.raw) as unknown as C;
+      // Start the middleware chain.
+      // Call this.middleware(), which returns a function with built-in try/catch and errorHandler
+      await this.middleware()(ctx, async () => { });
+    } catch (error) {
+      console.error("❌ Error in the middleware chain:", error);
+    }
   }
 
   public async launch(options: { timeout?: number; allowed_updates?: string[]; drop_pending_updates?: boolean } = {}): Promise<void> {
@@ -74,7 +78,7 @@ export class TelegramBot<C extends Context = Context> extends Composer<C> {
         for (const update of updates) {
           offset = update.update_id + 1;
 
-          this.handleUpdate(update).catch(err => {
+          await this.handleUpdate(update).catch(err => {
             console.error("❌ Error in the middleware chain:", err);
           });
         }

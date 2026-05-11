@@ -40,7 +40,7 @@ export class GasHybridStorage<T> implements Storage<T> {
     // 1. Try to get from the fast cache
     let data = await Promise.resolve(this.cache.get(key));
 
-    if (data !== undefined) {
+    if (data != null) {
       return data;
     }
 
@@ -48,7 +48,7 @@ export class GasHybridStorage<T> implements Storage<T> {
     data = await Promise.resolve(this.properties.get(key));
 
     // 3. If found in properties, update cache for next time
-    if (data !== undefined) {
+    if (data !== null && data !== undefined) {
       this.cache.set(key, data);
     }
 

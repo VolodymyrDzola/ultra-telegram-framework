@@ -1,6 +1,7 @@
 # Специфічні файли, які ти просив не чіпати
 generate-types.js
 .clasp.json
+.gitattributes
 
 # Стандартні папки та файли
 node_modules/

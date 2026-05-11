@@ -81,12 +81,11 @@ bot.command('start', async (ctx) => {
   await ctx.reply('Hello from Google Apps Script! ☁️');
 });
 
-globalThis.doPost = (e: any) => {
+globalThis.doPost = (e: GoogleAppsScript.Events.DoPost) => {
   if (e?.postData?.contents) {
     const update = JSON.parse(e.postData.contents);
     bot.handleUpdate(update);
   }
-  return ContentService.createTextOutput('OK');
 };
 ```
 
@@ -143,26 +142,26 @@ export default {
 Explore the detailed guides in our [Wiki](https://github.com/VolodymyrDzola/ultra-tg-framework/wiki):
 
 ### 🚀 Getting Started
-- **[Migrating to UTF](./Migrating-to-UTF.md)** — Step-by-step guide for upgrading from grammY, Telegraf, or legacy scripts.
-- **[Architecture](./ARCHITECTURE.md)** — Understand the adapter-based design and the four architectural layers.
-- **[Local Dev (Polling vs Webhooks)](./Local%20Dev%20Polling%20vs%20Webhooks.md)** — Best practices for running and testing your bot locally.
+- **[Migrating to UTF](https://github.com/VolodymyrDzola/ultra-tg-framework/wiki/Migrating-to-UTF)** — Step-by-step guide for upgrading from grammY, Telegraf, or legacy scripts.
+- **[Architecture](https://github.com/VolodymyrDzola/ultra-tg-framework/wiki/Architecture)** — Understand the adapter-based design and the four architectural layers.
+- **[Local Dev (Polling vs Webhooks)](https://github.com/VolodymyrDzola/ultra-tg-framework/wiki/Local-Dev)** — Best practices for running and testing your bot locally.
 
 ### ☁️ Deployment
-- **[Deploy to GAS](./DEPLOY_GAS.md)** — Comprehensive tutorial for Google Apps Script deployment with `esbuild` and `clasp`.
-- **[Deploy to Edge](./Edge%20Computing.md)** — Cloudflare Workers, Deno Deploy, and Bun examples.
+- **[Deploy to GAS](https://github.com/VolodymyrDzola/ultra-tg-framework/wiki/Deploy-to-GAS)** — Comprehensive tutorial for Google Apps Script deployment with `esbuild` and `clasp`.
+- **[Deploy to Edge](https://github.com/VolodymyrDzola/ultra-tg-framework/wiki/Edge-Computing)** — Cloudflare Workers, Deno Deploy, and Bun examples.
 
 ### 🧠 Framework Deep Dive
-- **[Core (TelegramBot)](./Core.md)** — The bot entry point, lifecycle, and initialization.
-- **[Context](./Context.md)** — Complete API reference for the `ctx` object with all 40+ helper methods.
-- **[Composer & Routing](./Composer.md)** — `.command()`, `.on()`, `.action()`, type narrowing, and modular sub-routers.
-- **[Middleware](./Middleware.md)** — The "onion" model, context hydration, and chain control.
-- **[Sessions & Storage](./Session.md)** — Memory, GAS Cache, Hybrid, and custom storage adapters.
-- **[Error Handling](./Error_Handling.md)** — `bot.catch()`, middleware boundaries, and Telegram-specific error patterns.
+- **[Core (TelegramBot)](https://github.com/VolodymyrDzola/ultra-tg-framework/wiki/Core)** — The bot entry point, lifecycle, and initialization.
+- **[Context](https://github.com/VolodymyrDzola/ultra-tg-framework/wiki/Context)** — Complete API reference for the `ctx` object with all 40+ helper methods.
+- **[Composer & Routing](https://github.com/VolodymyrDzola/ultra-tg-framework/wiki/Composer)** — `.command()`, `.on()`, `.action()`, type narrowing, and modular sub-routers.
+- **[Middleware](https://github.com/VolodymyrDzola/ultra-tg-framework/wiki/Middleware)** — The "onion" model, context hydration, and chain control.
+- **[Sessions & Storage](https://github.com/VolodymyrDzola/ultra-tg-framework/wiki/Session)** — Memory, GAS Cache, Hybrid, and custom storage adapters.
+- **[Error Handling](https://github.com/VolodymyrDzola/ultra-tg-framework/wiki/Error-Handling)** — `bot.catch()`, middleware boundaries, and Telegram-specific error patterns.
 
 ### 🧰 UI & Tools
-- **[Inline Menus](./InlineMenu.md)** — Page-based declarative menus with navigation and back buttons.
-- **[Wizard Scenes](./Wizard%20Scenes.md)** — Multi-step forms and conversational flows.
-- **[Handling Files](./Downloading%20Files.md)** — Working with Telegram files, downloads, and Google Drive integration.
+- **[Inline Menus](https://github.com/VolodymyrDzola/ultra-tg-framework/wiki/Inline-Menus)** — Page-based declarative menus with navigation and back buttons.
+- **[Wizard Scenes](https://github.com/VolodymyrDzola/ultra-tg-framework/wiki/Wizard-Scenes)** — Multi-step forms and conversational flows.
+- **[Handling Files](https://github.com/VolodymyrDzola/ultra-tg-framework/wiki/Handling-Files)** — Working with Telegram files, downloads, and Google Drive integration.
 
 ### 🔗 Resources
 - **[TypeDoc API Reference](https://volodymyrdzola.github.io/ultra-tg-framework/)** — Auto-generated TypeScript API documentation for all classes, methods, and types.
