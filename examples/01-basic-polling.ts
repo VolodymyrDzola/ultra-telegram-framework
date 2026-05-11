@@ -21,6 +21,11 @@ bot.on('text', async (ctx) => {
   await ctx.reply(`You said: ${ctx.text}`);
 });
 
+bot.catch(async (error, ctx) => {
+  console.error(`Error for ${ctx.from?.first_name}:`, error);
+  await ctx.reply("Oops! Something went wrong 🛠️").catch(() => { });
+});
+
 // Start polling
 bot.launch()
   .then(() => console.log('Bot is running!'))
