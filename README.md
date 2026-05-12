@@ -1,8 +1,9 @@
 # 🚀 Ultra Telegram Framework (UTF)
 
-[![Bot API 10.0](https://img.shields.io/badge/Bot%20API-10.0-blue.svg)](https://core.telegram.org/bots/api)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg)](https://www.typescriptlang.org/)
-[![Documentation](https://img.shields.io/badge/docs-TypeDoc-blue.svg)](https://volodymyrdzola.github.io/ultra-tg-framework/)
+[![Bot API 10.0](https://img.shields.io/badge/Bot%20API-10.0-blue.svg?logo=telegram)](https://core.telegram.org/bots/api)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue.svg?logo=typescript)](https://www.typescriptlang.org/)
+[![Google Apps Script](https://img.shields.io/badge/Google%20Apps%20Script-powered-orange.svg?logo=google-apps-script)](https://developers.google.com/apps-script/)
+[![Documentation](https://img.shields.io/badge/docs-TypeDoc-blue.svg?logo=readthedocs)](https://volodymyrdzola.github.io/ultra-tg-framework/)
 [![MIT License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
 **Ultra Telegram Framework (UTF)** is a modern, lightweight, and strongly typed Telegram Bot API framework built for **TypeScript**.

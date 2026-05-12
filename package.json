@@ -2,20 +2,32 @@
   "name": "ultra-telegram-framework",
   "version": "1.0.3",
   "description": "Telegram framework for Google Apps Script and Node.js - Bot API 10.0",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "type": "module",
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "build": "node build.js",
-    "push": "npm run build && clasp push",
+    "build:npm": "tsc",
+    "build:gas": "node build.js",
+    "push": "npm run build:gas && clasp push",
     "pull": "clasp pull",
     "create": "clasp create",
     "login": "clasp login",
     "docs": "typedoc --entryPointStrategy expand ./src",
-    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "prepublishOnly": "npm run build:npm"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "module",
+  "keywords": [
+    "telegram",
+    "bot",
+    "google-apps-script",
+    "typescript",
+    "framework"
+  ],
+  "author": "Volodymyr Dzola",
+  "license": "MIT",
   "devDependencies": {
     "@google/clasp": "^3.3.0",
     "@types/google-apps-script": "^2.0.8",

@@ -12,6 +12,8 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
+    "outDir": "./dist",
+    "declaration": true,
     "types": [
       "node",
       "google-apps-script",
@@ -20,5 +22,9 @@
   },
   "include": [
     "src/**/*"
+  ],
+  "exclude": [
+    "src/**/*.test.ts",
+    "src/**/*.spec.ts"
   ]
 }

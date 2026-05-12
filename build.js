@@ -25,7 +25,7 @@ build({
     loader: 'ts',
   },
   bundle: true,
-  outfile: 'dist/bundle.js',
+  outfile: 'gas-build/bundle.js',
   format: 'iife',
   footer: {
     js: 'function doPost(e) { return globalThis.doPost(e); }'

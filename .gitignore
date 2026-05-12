@@ -10,6 +10,9 @@ build/
 .env
 *.log
 
+# npm pack archives
+*.tgz
+
 # Тимчасові файли ОС
 .DS_Store
 Thumbs.db
