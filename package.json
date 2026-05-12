@@ -1,6 +1,6 @@
 {
   "name": "ultra-telegram-framework",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Telegram framework for Google Apps Script and Node.js - Bot API 10.0",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
