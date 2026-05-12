@@ -10,7 +10,14 @@ globalThis.doPost = async (e) => {
     if (!e || !e.postData || !e.postData.contents) return;
     const update = JSON.parse(e.postData.contents);
 
-    const Bot = new TelegramBot(new GasApiClient('token'));
+    const token = PropertiesService.getScriptProperties().getProperty('BOT_TOKEN');
+    
+    if (!token) {
+      console.error("Error: BOT_TOKEN not found in Script Properties!");
+      return;
+    }
+
+    const Bot = new TelegramBot(new GasApiClient(token));
     await Bot.handleUpdate(update);
   } catch (err) {
     console.error("Critical Webhook Error: " + err);

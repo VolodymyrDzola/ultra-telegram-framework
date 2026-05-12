@@ -1,0 +1,28 @@
+name: Telegram Notification
+
+on:
+  push:
+    branches:
+      - main
+  release:
+    types: [published]
+
+jobs:
+  node-distribution:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send Telegram Message
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_CHAT_ID }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          format: html
+          message: |
+            🚀 <b>New Update for Ultra Telegram Framework!</b>
+            
+            <b>Repository:</b> ${{ github.repository }}
+            <b>Event:</b> ${{ github.event_name }}
+            <b>Commit message:</b> ${{ github.event.head_commit.message }}
+            
+            <a href="https://github.com/${{ github.repository }}/commit/${{ github.sha }}">View Commit on GitHub</a>
+            <a href="https://www.npmjs.com/package/ultra-telegram-framework">View on NPM</a>
