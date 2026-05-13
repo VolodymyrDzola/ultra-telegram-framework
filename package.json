@@ -7,9 +7,7 @@
     "type": "git",
     "url": "git+https://github.com/VolodymyrDzola/ultra-telegram-framework.git"
   },
-  "bugs": {
-    "url": "https://github.com/VolodymyrDzola/ultra-telegram-framework/issues"
-  },
+  "bugs": "https://github.com/VolodymyrDzola/ultra-telegram-framework/issues",
   "homepage": "https://github.com/VolodymyrDzola/ultra-telegram-framework#readme",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
