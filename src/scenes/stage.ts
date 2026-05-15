@@ -1,7 +1,7 @@
 // src/scenes/stage.ts
-import { Composer, Middleware } from '../core/composer';
-import { SceneContext, WizardScene } from './wizard';
-import { SceneManager } from './scene-manager';
+import { Composer, Middleware } from '../core/composer.js';
+import { SceneContext, WizardScene } from './wizard.js';
+import { SceneManager } from './scene-manager.js';
 
 export class Stage<C extends SceneContext> extends Composer<C> {
   private scenes: Map<string, WizardScene<C>> = new Map();

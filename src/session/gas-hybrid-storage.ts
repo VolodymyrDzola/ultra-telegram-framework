@@ -1,6 +1,6 @@
-import { Storage } from './storage';
-import { PropertiesStorage } from './gas-storage';
-import { CacheStorage } from './gas-cache-storage';
+import { Storage } from './storage.js';
+import { PropertiesStorage } from './gas-storage.js';
+import { CacheStorage } from './gas-cache-storage.js';
 
 /**
  * Hybrid storage for Google Apps Script (CacheService + PropertiesService).

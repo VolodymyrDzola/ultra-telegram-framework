@@ -1,11 +1,11 @@
 // src/session/index.ts
-import { Context } from '../core/context';
-import { Storage } from './storage';
-import { MemoryStorage } from './memory-storage';
+import { Context } from '../core/context/index.js';
+import { Storage } from './storage.js';
+import { MemoryStorage } from './memory-storage.js';
 
 export interface SessionData extends Record<string, unknown> { }
 
-declare module '../core/context' {
+declare module '../core/context/index.js' {
   interface Context {
     session?: SessionData;
   }
@@ -66,8 +66,8 @@ export function sessionManager<S extends SessionData>(
   };
 }
 
-export * from './storage';
-export * from './memory-storage';
-export * from './gas-storage';
-export * from './gas-cache-storage';
-export * from './gas-hybrid-storage';
+export * from './storage.js';
+export * from './memory-storage.js';
+export * from './gas-storage.js';
+export * from './gas-cache-storage.js';
+export * from './gas-hybrid-storage.js';

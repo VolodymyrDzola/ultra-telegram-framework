@@ -1,5 +1,5 @@
 // src/adapters/gas.ts
-import { BaseTelegramClient, TelegramErrorResponse, TelegramApiResponse } from '../core/base-api';
+import { BaseTelegramClient, TelegramErrorResponse, TelegramApiResponse } from '../core/base-api.js';
 
 export class GasApiClient extends BaseTelegramClient {
   constructor(token?: string) {

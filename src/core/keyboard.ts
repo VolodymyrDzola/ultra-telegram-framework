@@ -14,7 +14,7 @@ import {
   KeyboardButtonRequestChat,
   KeyboardButtonPollType,
   KeyboardButtonRequestManagedBot
-} from '../types/telegram';
+} from '../types/telegram.js';
 
 /**
  * Base interface for any button (so TypeScript knows about common fields)

@@ -1,6 +1,6 @@
 // src/core/composer.ts
-import { Context } from './context';
-import { PhotoSize, Document, Video, Voice, Location, LivePhoto } from '../types/telegram';
+import { Context } from './context/index.js';
+import { PhotoSize, Document, Video, Voice, Location, LivePhoto } from '../types/telegram.js';
 /**
  * Type for the error handling function.
  */

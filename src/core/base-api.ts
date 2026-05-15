@@ -1,5 +1,5 @@
 // src/core/base-api.ts
-import { TelegramBotApi } from '../types/telegram';
+import { TelegramBotApi } from '../types/telegram.js';
 
 /**
  * Shape of a Telegram API error response (non-2xx HTTP status).

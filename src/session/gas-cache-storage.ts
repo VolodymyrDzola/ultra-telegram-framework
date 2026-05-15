@@ -1,4 +1,4 @@
-import { Storage } from './storage';
+import { Storage } from './storage.js';
 
 /**
  * Session storage for Google Apps Script based on CacheService.

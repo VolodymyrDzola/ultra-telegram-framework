@@ -1,8 +1,8 @@
-import { Context } from './context';
-import { Composer, Middleware } from './composer';
-import { InlineKeyboard } from './keyboard';
+import { Context } from './context/index.js';
+import { Composer, Middleware } from './composer.js';
+import { InlineKeyboard } from './keyboard.js';
 
-declare module './context' {
+declare module './context/index.js' {
   interface Context {
     menu?: InlineMenuManager<any>;
   }

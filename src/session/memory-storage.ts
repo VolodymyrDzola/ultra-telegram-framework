@@ -1,5 +1,5 @@
 // src/session/memory-storage.ts
-import { Storage } from './storage';
+import { Storage } from './storage.js';
 
 /**
  * In-memory session storage (Map).

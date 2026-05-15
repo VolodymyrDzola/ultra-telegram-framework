@@ -1,4 +1,4 @@
-import { TelegramBotApi, Update, CallbackQuery, MaybeInaccessibleMessage } from "../../types/telegram";
+import { TelegramBotApi, Update, CallbackQuery, MaybeInaccessibleMessage } from "../../types/telegram.js";
 
 export abstract class BaseContext {
   public readonly update: Update;

@@ -1,8 +1,8 @@
 // src/scenes/wizard.ts
-import { Composer, Middleware } from '../core/composer';
-import { Context } from '../core/context';
-import { SceneManager } from './scene-manager';
-import { SessionData } from '../session';
+import { Composer, Middleware } from '../core/composer.js';
+import { Context } from '../core/context/index.js';
+import { SceneManager } from './scene-manager.js';
+import { SessionData } from '../session/index.js';
 
 export interface SceneContext extends Context {
   session: SessionData;

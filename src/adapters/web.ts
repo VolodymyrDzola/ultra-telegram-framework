@@ -1,5 +1,5 @@
 // src/adapters/web.ts
-import { BaseTelegramClient, TelegramErrorResponse, TelegramApiResponse } from '../core/base-api';
+import { BaseTelegramClient, TelegramErrorResponse, TelegramApiResponse } from '../core/base-api.js';
 
 export class WebApiClient extends BaseTelegramClient {
   public async callApi<T>(method: string, payload: Record<string, unknown> = {}): Promise<T> {

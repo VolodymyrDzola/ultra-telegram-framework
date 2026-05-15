@@ -1,5 +1,5 @@
 // src/adapters/node.ts
-import { BaseTelegramClient, TelegramErrorResponse, TelegramApiResponse } from '../core/base-api';
+import { BaseTelegramClient, TelegramErrorResponse, TelegramApiResponse } from '../core/base-api.js';
 
 /**
  * Shape of a captured webhook reply payload.
