@@ -605,7 +605,7 @@ export abstract class ReplyContext extends BaseContext {
    */
   public async replyWithDraft(
     draftId: number,
-    options?: Omit<SendMessageDraftParams, "draft_id">
+    options?: Omit<SendMessageDraftParams, "draft_id" | "chat_id">
   ): Promise<boolean> {
     const { chatId } = this.getRequiredIds("replyWithDraft", false);
 
