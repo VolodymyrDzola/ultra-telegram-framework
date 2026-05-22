@@ -1,4 +1,4 @@
-import { TelegramBot, sessionManager, WebApiClient, MemoryStorage, InlineMenu, InlineKeyboard, SceneContext } from '../src/index';
+import { TelegramBot, WebApiClient } from '../src/index';
 
 const bot = new TelegramBot(new WebApiClient('TOKEN'));
 
@@ -17,12 +17,8 @@ bot.command('ask', async (ctx) => {
 
   try {
     // 1. Start showing the draft typing animation (expires after 30s by default)
-    if (!ctx.chatId) {
-      return;
-    }
 
     await ctx.replyWithDraft(Number(draftId), {
-      chat_id: ctx.chatId,
       text: "🧠 Generating response..."
     });
 
@@ -39,4 +35,4 @@ bot.command('ask', async (ctx) => {
   }
 });
 
-bot.launch().then(() => console.log('AI Draft example running!'));
+bot.startPolling().then(() => console.log('AI Draft example running!'));

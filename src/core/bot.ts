@@ -69,7 +69,13 @@ export class TelegramBot<C extends Context = Context> extends Composer<C> {
     }
   }
 
-  public async launch(options: { timeout?: number; allowed_updates?: string[]; drop_pending_updates?: boolean } = {}): Promise<void> {
+  /**
+   * Starts the bot using Long Polling.
+   * 
+   * @param options Configuration options for long polling
+   * @returns `Promise<void>`
+   */
+  public async startPolling(options: { timeout?: number; allowed_updates?: string[]; drop_pending_updates?: boolean } = {}): Promise<void> {
     console.log("🚀 Bot is starting in Long Polling mode...");
 
     let offset = 0;

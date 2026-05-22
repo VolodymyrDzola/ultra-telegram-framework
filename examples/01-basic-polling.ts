@@ -27,6 +27,6 @@ bot.catch(async (error, ctx) => {
 });
 
 // Start polling
-bot.launch()
+bot.startPolling()
   .then(() => console.log('Bot is running!'))
   .catch((err) => console.error('Failed to start:', err));

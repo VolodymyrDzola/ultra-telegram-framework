@@ -54,8 +54,8 @@ bot.on('text', async (ctx) => {
   await ctx.reply(`You said: ${ctx.text}`);
 });
 
-// 3. Launch
-bot.launch().then(() => console.log('🚀 Bot is running...'));
+// 3. StartPolling
+bot.startPolling().then(() => console.log('🚀 Bot is running...'));
 ```
 
 ### Example 2: Google Apps Script

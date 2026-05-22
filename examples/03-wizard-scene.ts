@@ -1,4 +1,4 @@
-import { TelegramBot, session, WebApiClient, WizardScene, SceneContext, MemoryStorage, Stage } from '../src/index';
+import { TelegramBot, sessionManager, WebApiClient, WizardScene, SceneContext, MemoryStorage, Stage } from '../src/index';
 
 const TOKEN = 'YOUR_TELEGRAM_TOKEN';
 const bot = new TelegramBot<SceneContext>(new WebApiClient(TOKEN));
@@ -27,7 +27,7 @@ const feedbackScene = new WizardScene<SceneContext>(
 );
 
 // 2. Setup Session and Stage
-bot.use(session({ storage: new MemoryStorage() }));
+bot.use(sessionManager({ storage: new MemoryStorage(), initial: () => ({}) }));
 
 const stage = new Stage([feedbackScene]);
 bot.use(stage.middleware());
@@ -37,4 +37,4 @@ bot.command('feedback', async (ctx) => {
   ctx.scene.enter('feedback');
 });
 
-bot.launch().then(() => console.log('Wizard example running!'));
+bot.startPolling().then(() => console.log('Wizard example running!'));

@@ -105,10 +105,10 @@ export class InlineMenuManager<C extends Context = Context> {
     const rawKeyboard = keyboard.toJSON();
 
     if (this.ctx.callbackQuery) {
-      // answerCbQuery is executed together with editMessage to guarantee removing the loading indicator
+      // answerCallbackQuery is executed together with editMessage to guarantee removing the loading indicator
       await Promise.all([
-        this.ctx.editMessage(text, { reply_markup: rawKeyboard }),
-        this.ctx.answerCbQuery()
+        this.ctx.editMessageText(text, { reply_markup: rawKeyboard }),
+        this.ctx.answerCallbackQuery()
       ]);
     } else {
       await this.ctx.reply(text, { reply_markup: rawKeyboard });

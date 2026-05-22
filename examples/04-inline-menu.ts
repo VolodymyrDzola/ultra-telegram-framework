@@ -1,7 +1,7 @@
-import { TelegramBot, session, WebApiClient, MemoryStorage, InlineMenu, InlineKeyboard, SceneContext } from '../src/index';
+import { TelegramBot, sessionManager, WebApiClient, MemoryStorage, InlineMenu, InlineKeyboard, SceneContext } from '../src/index';
 
 const bot = new TelegramBot<SceneContext>(new WebApiClient('TOKEN'));
-bot.use(session({ storage: new MemoryStorage() }));
+bot.use(sessionManager({ storage: new MemoryStorage(), initial: () => ({}) }));
 
 // 1. Sub-menu (Language settings)
 const languageMenu = new InlineMenu<SceneContext>('lang_menu')
@@ -12,13 +12,12 @@ const languageMenu = new InlineMenu<SceneContext>('lang_menu')
       .text('🇺🇦 Українська', 'lang:uk')
   }));
 
-// Обробники кнопок мови
 languageMenu.action('lang:en', async (ctx) => {
-  await ctx.answerCbQuery('Language set to English');
+  await ctx.answerCallbackQuery('Language set to English');
 });
 
 languageMenu.action('lang:uk', async (ctx) => {
-  await ctx.answerCbQuery('Мову змінено');
+  await ctx.answerCallbackQuery('Мову змінено');
 });
 
 // 2. Main menu
@@ -40,7 +39,7 @@ const mainMenu = new InlineMenu<SceneContext>('main_menu')
 mainMenu.action('toggle_alerts', async (ctx) => {
   ctx.session!.notifications = !ctx.session?.notifications;
   await ctx.menu?.setPage('main'); // Оновлюємо меню
-  await ctx.answerCbQuery();
+  await ctx.answerCallbackQuery();
 });
 
 // 3. Register menus globally
@@ -52,4 +51,4 @@ bot.command('menu', async (ctx) => {
   await ctx.menu?.setPage('main');
 });
 
-bot.launch().then(() => console.log('Menu example running! 🚀'));
+bot.startPolling().then(() => console.log('Menu example running! 🚀'));

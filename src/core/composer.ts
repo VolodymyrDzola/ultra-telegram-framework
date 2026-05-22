@@ -1,6 +1,6 @@
 // src/core/composer.ts
 import { Context } from './context/index.js';
-import { PhotoSize, Document, Video, Voice, Location, LivePhoto } from '../types/telegram.js';
+import { PhotoSize, Document, Video, Voice, Location, LivePhoto, Message, Update } from '../types/telegram.js';
 /**
  * Type for the error handling function.
  */
@@ -16,10 +16,8 @@ export type NextFunction = () => Promise<void>;
  * Contains Update object keys, Message fields, and entity types (Entities).
  */
 export type UpdateFilter =
-  // Update types
-  | 'message' | 'edited_message' | 'channel_post' | 'edited_channel_post' | 'callback_query'
-  | 'business_connection' | 'business_message' | 'edited_business_message' | 'deleted_business_messages'
-  | 'message_reaction' | 'message_reaction_count' | 'chat_boost' | 'removed_chat_boost' | 'guest_message'
+  // Dynamically extract all update types directly from the Update interface
+  | Exclude<keyof Update, 'update_id'>
   // Message fields
   | 'text' | 'photo' | 'document' | 'audio' | 'video' | 'voice' | 'animation' | 'sticker' | 'contact' | 'location' | 'live_photo'
   // Entities and custom type
@@ -61,7 +59,7 @@ export type NarrowedContext<C extends Context, F extends UpdateFilter> = C & {
   // If the filter concerns messages, then ctx.message 100% exists, 
   // and we add specific fields from NarrowedMessage there
   message: F extends 'message' | 'text' | 'photo' | 'document' | 'audio' | 'video' | 'voice' | 'animation' | 'sticker' | 'contact' | 'location' | 'live_photo' | 'guest_message' | 'business_message'
-  ? NonNullable<C['message']> & NarrowedMessage<F>
+  ? Message & NarrowedMessage<F>
   : C['message'];
 };
 export class Composer<C extends Context = Context> {
@@ -116,6 +114,47 @@ export class Composer<C extends Context = Context> {
         await Composer.compose(middlewares)(ctx, next);
       } else {
         // If the command is not ours, proceed further
+        await next();
+      }
+    };
+
+    this.handlers.push(filterMiddleware);
+    return this;
+  }
+
+  /**
+   * Registers a handler for text messages that match a string or regular expression.
+   * 
+   * @param triggers String or regular expression (or array of them) to match against the text
+   * @param middlewares Functions that will be executed on a match
+   */
+  public match(
+    triggers: string | RegExp | (string | RegExp)[],
+    ...middlewares: Middleware<NarrowedContext<C, 'text'>>[]
+  ): this {
+    const triggerArray = Array.isArray(triggers) ? triggers : [triggers];
+
+    const filterMiddleware: Middleware<C> = async (ctx, next) => {
+      const text = ctx.text;
+
+      if (!text) {
+        return next();
+      }
+
+      // Check if the text matches any of the triggers
+      const isMatch = triggerArray.some(trigger => {
+        if (typeof trigger === 'string') {
+          return text === trigger;
+        } else if (trigger instanceof RegExp) {
+          return trigger.test(text);
+        }
+        return false;
+      });
+
+      if (isMatch) {
+        // We cast context to NarrowedContext because we know it has text
+        await Composer.compose(middlewares)(ctx as NarrowedContext<C, 'text'>, next);
+      } else {
         await next();
       }
     };

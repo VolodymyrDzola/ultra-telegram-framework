@@ -170,17 +170,15 @@ export abstract class ReplyContext extends BaseContext {
     * @param params Parameters object or just the notification text
     * @returns `Promise<boolean>`
     */
-  public async answerCbQuery(
+  public async answerCallbackQuery(
     params?: (Omit<AnswerCallbackQueryParams, "callback_query_id">) | string
   ): Promise<boolean> {
-    // 1. Отримуємо ID виключно з контексту, бо ми заборонили передавати його в params
     const cbId = this.callbackQuery?.id;
 
     if (!cbId) {
-      throw new Error("Cannot perform answerCbQuery: callback_query_id not found.");
+      throw new Error("Cannot perform answerCallbackQuery: callback_query_id not found.");
     }
 
-    // 2. If a string is passed, it is shorthand for { text: "..." }
     if (typeof params === "string") {
       return this.api.answerCallbackQuery({
         callback_query_id: cbId,
@@ -245,7 +243,7 @@ export abstract class ReplyContext extends BaseContext {
  * @param options Additional parameters
  * @returns `Promise<Message | boolean>`
  */
-  public async editMessage(
+  public async editMessageText(
     text: string,
     options?: Omit<EditMessageTextParams, "chat_id" | "text" | "message_id">
   ): Promise<Message | boolean> {
